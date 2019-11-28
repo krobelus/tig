@@ -394,6 +394,7 @@ diff_find_header_from_stat(struct view *view, struct line *line)
 {
 	if (line->type == LINE_DIFF_STAT) {
 		int file_number = 0;
+		struct line *next = line + 1;
 
 		while (view_has_line(view, line) && line->type == LINE_DIFF_STAT) {
 			file_number++;
@@ -403,7 +404,7 @@ diff_find_header_from_stat(struct view *view, struct line *line)
 		for (line = view->line; view_has_line(view, line); line++) {
 			line = find_next_line_by_type(view, line, LINE_DIFF_HEADER);
 			if (!line)
-				break;
+				return NULL;
 
 			if (diff_find_stat_entry(view, line, LINE_DIFF_INDEX)
 			    || diff_find_stat_entry(view, line, LINE_DIFF_SIMILARITY)) {
@@ -413,6 +414,25 @@ diff_find_header_from_stat(struct view *view, struct line *line)
 				file_number--;
 			}
 		}
+
+		/* Check remaining diffs. */
+		file_number = 0;
+		while (view_has_line(view, next) && next->type == LINE_DIFF_STAT) {
+			file_number++;
+			next++;
+		}
+
+		for (next = line + 1; view_has_line(view, next); next++) {
+			next = find_next_line_by_type(view, next, LINE_DIFF_HEADER);
+			if (!next)
+				break;
+
+			if (diff_find_stat_entry(view, next, LINE_DIFF_INDEX)
+			    || diff_find_stat_entry(view, next, LINE_DIFF_SIMILARITY))
+				 file_number--;
+		}
+		if (file_number != 0)
+			return NULL;
 
 		return line;
 	}
@@ -426,7 +446,6 @@ diff_common_enter(struct view *view, enum request request, struct line *line)
 	if (line->type == LINE_DIFF_STAT) {
 		line = diff_find_header_from_stat(view, line);
 		if (!line) {
-			report("Failed to find file diff");
 			return REQ_NONE;
 		}
 
@@ -763,7 +782,7 @@ diff_common_edit(struct view *view, enum request request, struct line *line)
 		lineno = diff_get_lineno(view, line, false);
 	}
 
-	if (!file) {
+	if (!file || !*file) {
 		report("Nothing to edit");
 		return REQ_NONE;
 	}
@@ -805,6 +824,7 @@ diff_request(struct view *view, enum request request, struct line *line)
 void
 diff_common_select(struct view *view, struct line *line, const char *changes_msg)
 {
+	view->env->file[0] = 0;
 	if (line->type == LINE_DIFF_STAT) {
 		struct line *header = diff_find_header_from_stat(view, line);
 		if (header) {
@@ -815,10 +835,10 @@ diff_common_select(struct view *view, struct line *line, const char *changes_msg
 				view->env->lineno = view->env->goto_lineno = 0;
 				view->env->blob[0] = 0;
 			}
-		}
 
-		string_format(view->ref, "Press '%s' to jump to file diff",
-			      get_view_key(view, REQ_ENTER));
+			string_format(view->ref, "Press '%s' to jump to file diff",
+				      get_view_key(view, REQ_ENTER));
+		}
 	} else {
 		const char *file = diff_get_pathname(view, line);
 
