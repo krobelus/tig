@@ -174,7 +174,9 @@ following variables.
 |%(directory)		|The current directory path in the tree view or
 			 "." if undefined.
 |%(file)		|The currently selected file.
+|%(line_type)		|The first character of the selected line in a diff; one of [-+ ].
 |%(lineno)		|The currently selected line number. Defaults to 0.
+|%(lineno_old)		|The selected line number in the pre-image of a diff. Defaults to 0.
 |%(ref)			|The reference given to blame or HEAD if undefined.
 |%(revargs)		|The revision arguments passed on the command line.
 |%(fileargs)		|The file arguments passed on the command line.

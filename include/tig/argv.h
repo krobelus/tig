@@ -38,6 +38,7 @@ bool argv_contains(const char **argv, const char *arg);
 
 typedef char argv_string[SIZEOF_STR];
 typedef unsigned long argv_number;
+typedef char argv_char;
 
 #define ARGV_ENV_INFO(_) \
 	_(argv_string,	 commit,	"",		"HEAD") \
@@ -46,7 +47,9 @@ typedef unsigned long argv_number;
 	_(argv_string,	 directory,	".",		"") \
 	_(argv_string,	 file,		"",		"") \
 	_(argv_string,	 head,		"",		"HEAD") \
+	_(argv_char,	 line_type,	"",		'\0') \
 	_(argv_number,	 lineno,	"",		0) \
+	_(argv_number,	 lineno_old,	"",		0) \
 	_(argv_string,	 ref,		"HEAD",		"") \
 	_(argv_string,	 remote,	"origin",	"") \
 	_(argv_string,	 stash,		"",		"") \

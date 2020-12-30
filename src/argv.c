@@ -393,6 +393,14 @@ argv_number_formatter(struct format_context *format, struct format_var *var)
 }
 
 static bool
+argv_char_formatter(struct format_context *format, struct format_var *var)
+{
+	char value = *(unsigned long *) var->value_ref;
+
+	return string_format_from(format->buf, &format->bufpos, "%c", value);
+}
+
+static bool
 bool_formatter(struct format_context *format, struct format_var *var)
 {
 	bool value = *(bool *)var->value_ref;
