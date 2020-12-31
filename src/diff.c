@@ -623,7 +623,9 @@ diff_get_lineno(struct view *view, struct line *line, bool old)
 		return 0;
 
 	lineno = old ? chunk_header.old.position : chunk_header.new.position;
-
+	// IF needed use the commented version, which is more correct.
+	// lineno--;
+	// for (chunk++; chunk <= line; chunk++)
 	for (chunk++; chunk < line; chunk++)
 		if (old ? chunk->type != LINE_DIFF_ADD && chunk->type != LINE_DIFF_ADD2
 			: chunk->type != LINE_DIFF_DEL && chunk->type != LINE_DIFF_DEL2)
