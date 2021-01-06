@@ -1,0 +1,27 @@
+image: ubuntu/lts
+sources:
+  # TODO this should be https://github.com/jonas/tig
+  # The sr.ht GitHub integration only works for repos I own, not for forks,
+  # that's why I created a temporary repo for this.
+  - https://github.com/krobelus/tig-ci-integration-demo
+environment:
+  LANG: en_US.UTF-8
+tasks:
+  - system: |
+      sudo sh <<EOF
+      DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+        locales make git valgrind xmlto asciidoc libncurses-dev gcc clang \
+        autoconf automake pkg-config &&
+      echo en_US.UTF-8 UTF-8 > /etc/locale.gen &&
+      locale-gen
+      EOF
+  - build: |
+      cd tig-ci-integration-demo # TODO this should be tig
+      for cc in gcc clang
+      do
+        for tig_build in autoconf config.make valgrind address-sanitizer
+        do
+          CC=$cc TIG_BUILD=$tig_build tools/travis.sh
+          git clean -dxf
+        done
+      done
