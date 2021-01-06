@@ -1,0 +1,25 @@
+name: Windows
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: windows-2019
+    steps:
+      - name: Tell Git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v2
+      - name: Install Cygwin
+        run: choco install -y --no-progress cygwin
+      - name: Install dependencies
+        run: choco install -y --no-progress --source=cygwin git gcc-core make automake pkg-config libiconv-devel libncurses-devel
+      - name: Test Tig
+        run: |
+          $Env:PKG_CONFIG_PATH = "C:\tools\cygwin\lib\pkgconfig"
+          $Env:PATH = "C:\tools\cygwin\bin;" + $Env:PATH
+          make configure
+          sh configure
+          make
+          # make test # TODO There is no TTY on Windows, see https://github.com/actions/runner/issues/241
